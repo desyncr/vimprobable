@@ -259,17 +259,18 @@ All settings can be changed on the fly by entering
 :set followed by one of the commands in the SETTINGS section
 above.
 
-.SH SEARCH ENGINES
+.SH SHORTCUTS (SEARCH ENGINES)
 
-You can define new search engine shortcuts or override the pre-defined ones
+You can define new shortcuts or override the pre-defined ones
 using the following format (without the angle brackets):
 
 .RS 4
-searchengine <shortcut> <URL with exactly one %s>
+shortcut <shortcut> <URL with at most one %s>
 .RE
 
-where the %s serves as a placeholder for the search term. Other percent signs
-in the URL have to be escaped as %%\&.
+where the %s serves as a placeholder for the term to be inserted into the URL. 
+Other percent signs in the URL have to be escaped as %%\&. Using the shortcut
+feature without %s will simply work as shorthand to much-used bookmarks.
 
 .SH URI HANDLERS
 

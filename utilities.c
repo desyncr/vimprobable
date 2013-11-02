@@ -702,7 +702,7 @@ static gboolean sanity_check_search_url(const char *string)
         }
     }
 
-    return !was_percent_char && percent_s_count == 1;
+    return percent_s_count == 0 || percent_s_count == 1;
 }
 
 void make_searchengines_list(Searchengine *searchengines, int length)
@@ -758,8 +758,12 @@ read_rcfile(const char *config)
 			continue;
 		t = strlen(s);
 		s[t - 1] = '\0';
-		if (strncmp(s, "searchengine", 12) == 0) {
-			buffer = (s + 12);
+		if (strncmp(s, "shortcut", 8) == 0 || strncmp(s, "searchengine", 12) == 0) {
+			if (strncmp(s, "shortcut", 8) == 0) {
+				buffer = (s + 8);
+			} else {
+				buffer = (s + 12);
+			}
 			while (buffer[0] == ' ')
 				buffer++;
 			/* split line at whitespace */

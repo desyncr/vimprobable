@@ -1208,7 +1208,7 @@ open_arg(const Arg *arg) {
     char *argv[64];
     char *s = arg->s, *p = NULL, *new;
     Arg a = { .i = NavigationReload };
-    int len;
+    int len, space = 0;
     char *search_uri, *search_term;
     struct stat statbuf;
 
@@ -1242,16 +1242,31 @@ open_arg(const Arg *arg) {
             return TRUE;        
         /* check for search engines */
         p = strchr(s, ' ');
-        if (p) {                                                         /* check for search engines */
+        if (!p) {
+            /* shortcut without search term */
+            p = s;
+        } else {
+            /* search term given */
             *p = '\0';
-            search_uri = find_uri_for_searchengine(s);
-            if (search_uri != NULL) {
+            space = 1;
+        }
+        search_uri = find_uri_for_searchengine(s);
+        if (search_uri != NULL) {
+            if (space > 0) {
                 search_term = soup_uri_encode(p+1, "&");
                 new = g_strdup_printf(search_uri, search_term);
                 g_free(search_term);
+            } else {
+                if (!strstr(search_uri, "%s"))
+                    new = g_strdup_printf(search_uri);
+                else {
+                    /* the search engine definition expected an argument */
+                    new = g_strdup_printf(search_uri, "");
+                }
             }
-            *p = ' ';
         }
+        if (space > 0)
+            *p = ' ';
         if (!new) {
             if (len > 3 && strstr(s, "://")) {                      /* valid url? */
                 p = new = g_malloc(len + 1);
@@ -1272,7 +1287,7 @@ open_arg(const Arg *arg) {
                     new = g_malloc(sizeof("file://") + len);
                     sprintf(new, "file://%s", s);
                 }
-            } else if (p || !strchr(s, '.')) {                      /* whitespaces or no dot? */
+            } else if (space > 0 || !strchr(s, '.')) {                      /* whitespaces or no dot? */
                 search_uri = find_uri_for_searchengine(defaultsearch);
                 if (search_uri != NULL) {
                     search_term = soup_uri_encode(s, "&");
