@@ -156,7 +156,7 @@ typedef struct {
 
 struct map_pair {
 	char *line;
-	char what[20];
+	char what[32];
 	char value[240];
 } my_pair;
 

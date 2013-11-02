@@ -36,12 +36,12 @@ char sslinvalidbgcolor[MAX_SETTING_SIZE]= "#ff0000";            /* background co
 char sslcolor[MAX_SETTING_SIZE]         = "#000000";            /* color for status bar with SSL url */
 
                                         /*  normal,                 warning,                error       */
-static const char *urlboxfont[]         = { "monospace normal 8",   "monospace normal 8",   "monospace bold 8"};
+char urlboxfont[][MAX_SETTING_SIZE]     = { "monospace normal 8",   "monospace normal 8",   "monospace bold 8"};
 static const char *urlboxcolor[]        = { NULL,                   "#ff0000",              "#ffffff" };
 static const char *urlboxbgcolor[]      = { NULL,                   NULL,                   "#ff0000" };
 
                                         /*  normal,                 error               */
-static const char *completionfont[]     = { "monospace normal 8",   "monospace bold 8" };
+char completionfont[2][MAX_SETTING_SIZE] = { "monospace normal 8",   "monospace bold 8" };
                                                                                         /* topborder color */
 static const char *completioncolor[]    = { "#000000",              "#ff00ff",              "#000000" };
                                                                                         /* current row background */
@@ -216,6 +216,11 @@ static Setting browsersettings[] = {
     { "defaultsearch",   defaultsearch,      "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "downloadspath",   downloads_path,     "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "statusfont",      statusfont,         "",                            FALSE,          FALSE,           FALSE,          FALSE  },
+    { "urlboxfontnormal",urlboxfont[0],      "",                            FALSE,          FALSE,           FALSE,          FALSE  },
+    { "urlboxfontwarning",urlboxfont[1],      "",                           FALSE,          FALSE,           FALSE,          FALSE  },
+    { "urlboxfonterror", urlboxfont[2],      "",                            FALSE,          FALSE,           FALSE,          FALSE  },
+    { "completionfontnormal", completionfont[0],      "",                   FALSE,          FALSE,           FALSE,          FALSE  },
+    { "completionfonterror",  completionfont[1],      "",                   FALSE,          FALSE,           FALSE,          FALSE  },
     { "qmark",           NULL,               "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "proxy",           NULL,               "",                            FALSE,          TRUE,            FALSE,          FALSE  },
     { "windowsize",      NULL,               "",                            FALSE,          FALSE,           FALSE,          FALSE  },
