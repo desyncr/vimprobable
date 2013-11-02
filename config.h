@@ -79,6 +79,7 @@ static URIHandler uri_handlers[] = {
 #define             ENABLE_COOKIE_SUPPORT
 #define             COOKIES_STORAGE_FILENAME    "%s/vimprobable/cookies", client.config.config_base
 #define             COOKIES_STORAGE_READONLY    FALSE   /* if TRUE new cookies will be lost if you quit */
+SoupCookieJarAcceptPolicy CookiePolicy = SOUP_COOKIE_JAR_ACCEPT_ALWAYS; /* by default, accept all cookies */
 
 
 /* font size */
@@ -214,6 +215,7 @@ static Setting browsersettings[] = {
     { "sslcolor",        sslcolor,           "",                            FALSE,          FALSE,           TRUE,           TRUE   },
     { "acceptlanguage",  acceptlanguage,     "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "defaultsearch",   defaultsearch,      "",                            FALSE,          FALSE,           FALSE,          FALSE  },
+    { "cookies",         NULL,               "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "downloadspath",   downloads_path,     "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "statusfont",      statusfont,         "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "urlboxfontnormal",urlboxfont[0],      "",                            FALSE,          FALSE,           FALSE,          FALSE  },

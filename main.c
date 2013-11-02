@@ -2196,6 +2196,25 @@ process_set_line(char *line) {
                 gtk_widget_set_visible(client.gui.inputbox, boolval);
             } else if (strlen(my_pair.what) == 11 && strncmp("escapeinput", my_pair.what, 11) == 0) {
                 escape_input_on_load = boolval;
+            } else if (strlen(my_pair.what) == 7 && strncmp("cookies", my_pair.what, 7) == 0) {
+                /* cookie policy */
+                if (strncmp(my_pair.value, "on", 2) == 0 || strncmp(my_pair.value, "true", 4) == 0 ||
+                        strncmp(my_pair.value, "ON", 2) == 0 || strncmp(my_pair.value, "TRUE", 4) == 0 || 
+                        strncmp(my_pair.value, "all", 3) == 0 || strncmp(my_pair.value, "ALL", 3) == 0) {
+                    CookiePolicy = SOUP_COOKIE_JAR_ACCEPT_ALWAYS;
+                } else if (strncmp(my_pair.value, "off", 3) == 0 || strncmp(my_pair.value, "false", 5) == 0 || 
+                        strncmp(my_pair.value, "OFF", 3) == 0 || strncmp(my_pair.value, "FALSE", 5) == 0 || 
+                        strncmp(my_pair.value, "never", 5) == 0 || strncmp(my_pair.value, "NEVER", 5) == 5 || 
+                        strncmp(my_pair.value, "none", 4) == 0 || strncmp(my_pair.value, "NONE", 4) == 0) {
+                    CookiePolicy = SOUP_COOKIE_JAR_ACCEPT_NEVER;
+                } else if (strncmp(my_pair.value, "origin", 6) == 0 || strncmp(my_pair.value, "ORIGIN", 6) == 0 || 
+                        strncmp(my_pair.value, "no_third", 8) == 0 || strncmp(my_pair.value, "NO_THIRD", 8) == 0 || 
+                        strncmp(my_pair.value, "no third", 8) == 0 || strncmp(my_pair.value, "NO THIRD", 8) == 0) {
+                    CookiePolicy = SOUP_COOKIE_JAR_ACCEPT_NO_THIRD_PARTY;
+                } else {
+                    return FALSE;
+                }
+                soup_cookie_jar_set_accept_policy(client.net.session_cookie_jar, CookiePolicy);
             }
 
             /* SSL certificate checking */
@@ -2764,6 +2783,7 @@ setup_cookies()
 		g_object_unref(net->session_cookie_jar);
 
 	net->session_cookie_jar = soup_cookie_jar_new();
+	soup_cookie_jar_set_accept_policy(net->session_cookie_jar, CookiePolicy);
 
 	net->cookie_store = g_strdup_printf(COOKIES_STORAGE_FILENAME);
 
@@ -2787,6 +2807,7 @@ new_generic_request(SoupSession *session, SoupMessage *soup_msg, gpointer unused
     soup_msg_h = soup_msg->request_headers;
     soup_message_headers_remove(soup_msg_h, "Cookie");
     uri = soup_message_get_uri(soup_msg);
+    soup_message_set_first_party(soup_msg, uri);
     if ((cookie_str = get_cookies(uri))) {
         soup_message_headers_append(soup_msg_h, "Cookie", cookie_str);
         g_free(cookie_str);
@@ -2811,22 +2832,33 @@ handle_cookie_request(SoupMessage *soup_msg, gpointer unused)
 {
 	GSList *resp_cookie = NULL, *cookie_list;
 	SoupCookie *cookie;
+	SoupURI *uri = soup_message_get_uri(soup_msg);
 
-	cookie_list = soup_cookies_from_response(soup_msg);
-	for(resp_cookie = cookie_list; resp_cookie; resp_cookie = g_slist_next(resp_cookie))
-	{
-		SoupDate *soup_date;
-		cookie = soup_cookie_copy((SoupCookie *)resp_cookie->data);
-
-		if (client.config.cookie_timeout && cookie->expires == NULL) {
-			soup_date = soup_date_new_from_time_t(time(NULL) + client.config.cookie_timeout * 10);
-			soup_cookie_set_expires(cookie, soup_date);
-			soup_date_free(soup_date);
+	if (CookiePolicy != SOUP_COOKIE_JAR_ACCEPT_NEVER) {
+		cookie_list = soup_cookies_from_response(soup_msg);
+		for(resp_cookie = cookie_list; resp_cookie; resp_cookie = g_slist_next(resp_cookie))
+		{
+			SoupDate *soup_date;
+			cookie = soup_cookie_copy((SoupCookie *)resp_cookie->data);
+	
+			if (client.config.cookie_timeout && cookie->expires == NULL) {
+				soup_date = soup_date_new_from_time_t(time(NULL) + client.config.cookie_timeout * 10);
+				soup_cookie_set_expires(cookie, soup_date);
+				soup_date_free(soup_date);
+			}
+			if (CookiePolicy != SOUP_COOKIE_JAR_ACCEPT_ALWAYS) {
+				/* no third party cookies: for libsoup 2.4 and later, the following should work */
+				/*soup_cookie_jar_add_cookie_with_first_party(client.net.file_cookie_jar, uri, cookie);*/
+				if (strcmp(soup_uri_get_host(uri), soup_cookie_get_domain(cookie)) == 0) {
+					soup_cookie_jar_add_cookie(client.net.file_cookie_jar, cookie);
+				}
+			} else {
+				soup_cookie_jar_add_cookie(client.net.file_cookie_jar, cookie);
+			}
 		}
-		soup_cookie_jar_add_cookie(client.net.file_cookie_jar, cookie);
+	
+		soup_cookies_free(cookie_list);
 	}
-
-	soup_cookies_free(cookie_list);
 
 	return;
 }
@@ -2839,10 +2871,12 @@ update_cookie_jar(SoupCookieJar *jar, SoupCookie *old, SoupCookie *new)
 		return;
 	}
 
-	SoupCookie *copy;
-	copy = soup_cookie_copy(new);
+	if (CookiePolicy != SOUP_COOKIE_JAR_ACCEPT_NEVER) {
+		SoupCookie *copy;
+		copy = soup_cookie_copy(new);
 
-	soup_cookie_jar_add_cookie(client.net.session_cookie_jar, copy);
+		soup_cookie_jar_add_cookie(client.net.session_cookie_jar, copy);
+	}
 
 	return;
 }
