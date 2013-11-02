@@ -25,6 +25,9 @@ static const gboolean enablePagecache   = FALSE; /* TRUE turns on the page cache
 static gboolean escape_input_on_load    = TRUE; /* TRUE will disable automatic focusing of input fields via Javascript*/
 char temp_dir[MAX_SETTING_SIZE]         = "/tmp"; /* location of temporary files, default will be overridden if TEMPDIR is set */
 
+char downloads_path[MAX_SETTING_SIZE]   = "";
+char statusfont[MAX_SETTING_SIZE]       = "monospace bold 8";   /* font for status bar */
+
 /* appearance */
 char statusbgcolor[MAX_SETTING_SIZE]    = "#000000";            /* background color for status bar */
 char statuscolor[MAX_SETTING_SIZE]      = "#ffffff";            /* color for status bar */
@@ -47,7 +50,6 @@ static const char *completionbgcolor[]  = { "#ffffff",              "#ffffff",  
 #define             COMPLETION_TAG_OPEN     "<b>"
 #define             COMPLETION_TAG_CLOSE    "</b>"
 
-static const char statusfont[]          = "monospace bold 8";   /* font for status bar */
 #define             ENABLE_HISTORY_INDICATOR
 #define             ENABLE_INCREMENTAL_SEARCH
 #define             ENABLE_GTK_PROGRESS_BAR
@@ -78,8 +80,6 @@ static URIHandler uri_handlers[] = {
 #define             COOKIES_STORAGE_FILENAME    "%s/vimprobable/cookies", client.config.config_base
 #define             COOKIES_STORAGE_READONLY    FALSE   /* if TRUE new cookies will be lost if you quit */
 
-/* downloads directory */
-#define             DOWNLOADS_PATH              "%s", getenv("HOME")
 
 /* font size */
 #define             DEFAULT_FONT_SIZE           12
@@ -214,6 +214,8 @@ static Setting browsersettings[] = {
     { "sslcolor",        sslcolor,           "",                            FALSE,          FALSE,           TRUE,           TRUE   },
     { "acceptlanguage",  acceptlanguage,     "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "defaultsearch",   defaultsearch,      "",                            FALSE,          FALSE,           FALSE,          FALSE  },
+    { "downloadspath",   downloads_path,     "",                            FALSE,          FALSE,           FALSE,          FALSE  },
+    { "statusfont",      statusfont,         "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "qmark",           NULL,               "",                            FALSE,          FALSE,           FALSE,          FALSE  },
     { "proxy",           NULL,               "",                            FALSE,          TRUE,            FALSE,          FALSE  },
     { "windowsize",      NULL,               "",                            FALSE,          FALSE,           FALSE,          FALSE  },

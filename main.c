@@ -305,7 +305,7 @@ webview_download_cb(WebKitWebView *webview, WebKitDownload *download, gpointer u
     if (filename == NULL || strlen(filename) == 0) {
         filename = "vimprobable_download";
     }
-    path = g_build_filename(g_strdup_printf(DOWNLOADS_PATH), filename, NULL);
+    path = g_build_filename(g_strdup_printf(downloads_path), filename, NULL);
     uri = g_strconcat("file://", path, NULL);
     webkit_download_set_destination_uri(download, uri);
     g_free(path);
@@ -2923,6 +2923,8 @@ main(int argc, char *argv[]) {
         config->config_base = g_strdup_printf("%s", getenv("XDG_CONFIG_HOME"));
     else
         config->config_base = g_strdup_printf("%s/.config/", getenv("HOME"));
+
+    sprintf(downloads_path, "%s", getenv("HOME"));
 
     if (cfile)
         config->configfile = g_strdup(cfile);
