@@ -94,6 +94,8 @@ static gboolean fake_key_event(const Arg *arg);
 static void clear_focus(void);
 static void update_url(const char *uri);
 static void setup_client(void);
+static void close_session_file(void);
+static void initialize_session_file(void);
 static void setup_modkeys(void);
 static void setup_gui(void);
 static void setup_settings(void);
@@ -1381,10 +1383,10 @@ quit(const Arg *arg) {
         /* write last URL into status file for recreation with "u" */
         filename = g_strdup_printf("%s", client.config.config_base);
         filename = g_strdup_printf(CLOSED_URL_FILENAME);
-        f = fopen(filename, "w");
+        f = fopen(filename, "a");
         g_free((gpointer *)filename);
         if (f != NULL) {
-            fprintf(f, "%s", uri);
+            fprintf(f, "%s\n", uri);
             fclose(f);
         }
     }
@@ -1397,13 +1399,17 @@ revive(const Arg *arg) {
     FILE *f;
     const char *filename;
     char buffer[512] = "";
+    char part[512] = "";
     Arg a = { .i = TargetNew, .s = NULL };
     /* get the URL of the window which has been closed last */
     filename = g_strdup_printf(CLOSED_URL_FILENAME);
-    f = fopen(filename, "r");
+    f = fopen(filename, "a+");
     g_free((gpointer *)filename);
     if (f != NULL) {
-        fgets(buffer, 512, f);
+        while ( fgets(part, 512, f) ) {
+            strcpy(buffer, part);
+        }
+        ftruncate(fileno(f), ftell(f) - strlen(buffer));
         fclose(f);
     }
     if (strlen(buffer) > 0) {
@@ -2574,6 +2580,51 @@ setup_client(void) {
 }
 
 void
+initialize_session_file()
+{
+    char *filename = g_strdup_printf(RUNNING_INSTANCES_FILENAME);
+    FILE *instances = fopen(filename, "r");
+    int i = 0;
+    if ( instances != NULL ) {
+         fscanf(instances, "%d", &i);
+         fclose(instances);
+    }
+
+    i++;
+    instances = fopen(filename, "w+");
+    fprintf(instances, "%d", i);
+    fclose(instances);
+}
+
+void
+close_session_file() {
+    char *filename = g_strdup_printf(RUNNING_INSTANCES_FILENAME);
+    FILE *instances = fopen(filename, "r");
+    int i = 0;
+    if (instances != NULL) {
+        fscanf(instances, "%d", &i);
+        fclose(instances);
+
+        instances = fopen(filename, "w+");
+        if ( instances != NULL ) {
+            if ( i <= 1) {
+                /* when there are no more instances remove closed urls history */
+                /* TODO use truncate instead */
+                char *filename = g_strdup_printf(CLOSED_URL_FILENAME);
+                FILE *closed = fopen(filename, "w+");
+                fclose(closed);
+
+            } else {
+                i--;
+                fprintf(instances, "%d", i);
+
+            }
+            fclose(instances);
+        }
+    }
+}
+
+void
 setup_modkeys() {
     unsigned int i;
     client.config.modkeys = calloc(LENGTH(keys) + 1, sizeof(char));
@@ -2976,6 +3027,7 @@ main(int argc, char *argv[]) {
         }
     }
 
+    initialize_session_file();
     setup_modkeys();
     make_keyslist();
     setup_gui();
@@ -3016,5 +3068,6 @@ main(int argc, char *argv[]) {
 
     mop_up();
 
+    close_session_file();
     return EXIT_SUCCESS;
 }

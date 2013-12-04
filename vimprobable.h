@@ -191,6 +191,7 @@ enum ConfigFileError {
 #define             HISTORY_MAX_ENTRIES         1000
 #define             HISTORY_STORAGE_FILENAME    "%s/vimprobable/history", client.config.config_base
 #define             CLOSED_URL_FILENAME         "%s/vimprobable/closed", client.config.config_base
+#define             RUNNING_INSTANCES_FILENAME  "%s/vimprobable/instances", client.config.config_base
 
 /* Command size */
 #define	            COMMANDSIZE	                47
