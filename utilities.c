@@ -208,26 +208,26 @@ changemapping(Key *search_key, int maprecord, char *cmd) {
 
     current = client.config.keylistroot;
 
-    if (current)
-        while (current->next != NULL) {
-            if (
-                current->Element.mask   == search_key->mask &&
-                current->Element.modkey == search_key->modkey &&
-                current->Element.key    == search_key->key
-               ) {
-                if (maprecord >= 0) {
-                    /* mapping to an internal signal */
-                    current->Element.func = commands[maprecord].func;
-                    current->Element.arg  = commands[maprecord].arg;
-                } else {
-                    /* mapping to a command line */
-                    current->Element.func = process_line_arg;
-                    current->Element.arg  = a;
-                }
-                return TRUE;
+    while (current != NULL) {
+        if (
+            current->Element.mask   == search_key->mask &&
+            current->Element.modkey == search_key->modkey &&
+            current->Element.key    == search_key->key
+           ) {
+            if (maprecord >= 0) {
+                /* mapping to an internal signal */
+                current->Element.func = commands[maprecord].func;
+                current->Element.arg  = commands[maprecord].arg;
+            } else {
+                /* mapping to a command line */
+                current->Element.func = process_line_arg;
+                current->Element.arg  = a;
             }
-            current = current->next;
+            return TRUE;
         }
+        current = current->next;
+    }
+
     newkey = malloc(sizeof(KeyList));
     if (newkey == NULL) {
         printf("Not enough memory\n");
