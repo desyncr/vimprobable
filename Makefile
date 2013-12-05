@@ -16,7 +16,7 @@ MANINSTALL = $(addprefix $(MANDIR)/man1/,$(MAN1)) \
 INSTALL = $(BINDIR)/$(TARGET) $(MANINSTALL)
 
 # DEBUG build?  Off by default
-V_DEBUG = 0
+V_DEBUG = 1
 
 CFLAGS += `pkg-config --cflags $(LIBS)` -D_XOPEN_SOURCE=500
 LDFLAGS += `pkg-config --libs $(LIBS)` -lX11 -lXext
