@@ -37,15 +37,15 @@ char sslcolor[MAX_SETTING_SIZE]         = "#000000";            /* color for sta
 
                                         /*  normal,                 warning,                error       */
 char urlboxfont[][MAX_SETTING_SIZE]     = { "monospace normal 8",   "monospace normal 8",   "monospace bold 8"};
-static const char *urlboxcolor[]        = { NULL,                   "#ff0000",              "#ffffff" };
-static const char *urlboxbgcolor[]      = { NULL,                   NULL,                   "#ff0000" };
+static const char *urlboxcolor[]        = { "#666666",              "#ff0000",              "#ffffff" };
+static const char *urlboxbgcolor[]      = { "#000000",              "#000000",              "#ff0000" };
 
                                         /*  normal,                 error               */
 char completionfont[2][MAX_SETTING_SIZE] = { "monospace normal 8",   "monospace bold 8" };
                                                                                         /* topborder color */
-static const char *completioncolor[]    = { "#000000",              "#ff00ff",              "#000000" };
+static const char *completioncolor[]    = { "#666666",              "#ff00ff",              "#000000" };
                                                                                         /* current row background */
-static const char *completionbgcolor[]  = { "#ffffff",              "#ffffff",              "#fff000" };
+static const char *completionbgcolor[]  = { "#000000",              "#000000",              "#fff000" };
 /* pango markup for prefix highliting:      opening,                closing             */
 #define             COMPLETION_TAG_OPEN     "<b>"
 #define             COMPLETION_TAG_CLOSE    "</b>"
